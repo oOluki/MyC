@@ -10,7 +10,10 @@
 
 
 
-// função inverso da raiz quadrada original do Quake III
+// função inverso da raiz quadrada original do Quake III, geralmente atribuida a John D. Carmack.
+// leia mais em: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
+// fast inverse sqrt function from Quake III, most noticibly attributed to John D. Carmack.
+// read more in: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
 float Q_rsqrt(float number)
 {
   long i;
@@ -101,4 +104,4 @@ MC_FLOAT* mat_2, unsigned int mat2_sizex, MC_FLOAT* output){
 
 
 
-#endif //END OF FILE
+#endif //END OF FILE =================================================================
