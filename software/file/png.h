@@ -1,7 +1,7 @@
 #ifndef MC_FILE_PNG_HEADER
 #define MC_FILE_PNG_HEADER
 
-#include "mc_fbegin.h"
+#include "begin.h"
 
 
 

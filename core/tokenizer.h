@@ -1,8 +1,12 @@
 #ifndef MC_TOKENIZER_HEADER
 #define MC_TOKENIZER_HEADER
 
-#include "../core/stream.h"
-#include "../core/string.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "string.h"
+#include "memory.h"
 
 
 typedef struct Mc_token_t

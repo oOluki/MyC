@@ -1,7 +1,8 @@
 #ifndef MCMATH_UNITARY_MATRICE_HEADER
 #define MCMATH_UNITARY_MATRICE_HEADER
 
-#include "../core/setup.h"
+#include "setup.h"
+
 
 #ifndef MC_ABS
 #define MC_ABS(X) (((X) > 0)? X : -X)

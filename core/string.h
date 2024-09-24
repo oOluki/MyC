@@ -1,6 +1,9 @@
 #ifndef MC_STRING_HEADER
 #define MC_STRING_HEADER
+
 #include "setup.h"
+
+
 
 typedef struct Mc_string_t
 {

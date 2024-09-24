@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include "software/tokenizer.h"
-
+#include "core/tokenizer.h"
 
 int main(){
 
@@ -16,6 +15,8 @@ int main(){
         ",",
         "//"
     );
+
+    uint32_t i = mc_swap32(32);
 
     printf("token_count=%u\n", token_count);
 

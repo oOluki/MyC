@@ -1,27 +1,57 @@
 #ifndef MC_FILE_BEGIN_HEADER
 #define MC_FILE_BEGIN_HEADER
 
+
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include "../../core/memory.h"
+
+#include "setup.h"
+
+
+static inline uint32_t mcsf_swap32(uint32_t x){
+    return (
+        ((x & 0X000000FF) << 24) |
+        ((x & 0X0000FF00) << 8) |
+        ((x & 0X00FF0000) >> 8) |
+        ((x & 0XFF000000) >> 24)
+    );
+}
+
+
+static inline uint64_t mcsf_swap64(uint64_t x) {
+    return ((x & 0x00000000000000FFULL) << 56) |
+        ((x & 0x000000000000FF00ULL) << 40) |
+        ((x & 0x0000000000FF0000ULL) << 24) |
+        ((x & 0x00000000FF000000ULL) << 8)  |
+        ((x & 0x000000FF00000000ULL) >> 8)  |
+        ((x & 0x0000FF0000000000ULL) >> 24) |
+        ((x & 0x00FF000000000000ULL) >> 40) |
+        ((x & 0xFF00000000000000ULL) >> 56);
+}
+
+
 
 #if defined(_WIN32) || defined(_WIN64)  // Windows platform
     #include <windows.h>
     #define MC_IS_LITTLE_ENDIAN (!IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE))  // Simple check
+
 #else  // Linux, macOS
+
     #define MC_IS_LITTLE_ENDIAN (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+
 #endif
 
 
 #if MC_IS_LITTLE_ENDIAN
 // conditional byte swapping that only takes place in little endian ordered bytes systems
 // this is used for convinience when comparing bytes in numbers that (should) hold file formats or such things
-#define MC_LITTLE_ENDIAN_CBSHIFT32(X) swap32(X)
+#define MC_LITTLE_ENDIAN_CBSHIFT32(X) mcsf_swap32(X)
 // conditional byte swapping that only takes place in little endian ordered bytes systems
 // this is used for convinience when comparing bytes in numbers that (should) hold file formats or such things
-#define MC_LITTLE_ENDIAN_CBSHIFT64(X) swap64(X)
+#define MC_LITTLE_ENDIAN_CBSHIFT64(X) mcsf_swap64(X)
 
 #else
 // conditional byte swapping that only takes place in little endian ordered bytes systems
@@ -30,6 +60,7 @@
 // conditional byte swapping that only takes place in little endian ordered bytes systems
 // this is used for convinience when comparing bytes in numbers that (should) hold file formats or such things
 #define MC_LITTLE_ENDIAN_CBSHIFT64(X)
+
 #endif
 
 
@@ -65,7 +96,7 @@ MC_FILEFORMAT_OGG,
 typedef struct MC_File{
     MC_FileFormat format;
     unsigned char* data;
-    size_t size;
+    Mc_size_t size;
 } MC_File;
 
 
