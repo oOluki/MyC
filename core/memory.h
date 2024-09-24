@@ -2,35 +2,11 @@
 #define MC_MEMORY_HEADER
 
 #include <stdint.h>
-#include "setup.h"
+#include <string.h>
 
 
 typedef unsigned char Mc_byte_t;
 
-
-int mc_memcmp(const void* mem1, const void* mem2, Mc_size_t size){
-
-    for(Mc_size_t i = 0; i < size; i += sizeof(Mc_size_t)){
-        if(*(Mc_size_t*)((Mc_byte_t*)(mem1) + i) != *(Mc_size_t*)((Mc_byte_t*)(mem1) + i)){
-            return 0;
-        }
-    }
-    for(Mc_size_t i = sizeof(Mc_size_t) * (Mc_size_t)(size / sizeof(Mc_size_t)); i < size; i+=1){
-        if(((Mc_byte_t*)mem1)[i] != ((Mc_byte_t*)mem2)[i]){
-            return 0;
-        }
-    }
-    return 1;
-}
-
-void mc_memcpy(void* dest, const void* src, Mc_size_t size){
-    for(Mc_size_t i = 0; i < size; i += sizeof(Mc_size_t)){
-        *(Mc_size_t*)((Mc_byte_t*)(dest) + i) = *(Mc_size_t*)((Mc_byte_t*)(src) + i);
-    }
-    for(Mc_size_t i = sizeof(Mc_size_t) * (Mc_size_t)(size / sizeof(Mc_size_t)); i < size; i+=1){
-        ((Mc_byte_t*)dest)[i] = ((Mc_byte_t*)src)[i];
-    }
-}
 
 
 
