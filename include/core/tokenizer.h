@@ -49,7 +49,7 @@ unsigned int mc_tokenize(Mc_token_t** token_buffer_pointer, unsigned int buff_po
 
 
         if(buff_pos * sizeof(Mc_token_t) + sizeof(Mc_tkn_metadata_t) < tokens.size){
-            stream.size = (Mc_size_t)((Mc_byte_t*)(token_buffer[buff_pos]) - stream.data);
+            stream.size = token_buffer[buff_pos];
         }
 
         const char* ignored = __ignored? __ignored : " \t\n";               // avoiding null dereferencing
