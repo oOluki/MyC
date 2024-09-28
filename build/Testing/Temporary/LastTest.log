@@ -1,0 +1,23 @@
+Start testing: Sep 25 00:02 -03
+----------------------------------------------------------
+1/1 Testing: core_test
+1/1 Test: core_test
+Command: "/home/luki/projects/MyC/build/core_test"
+Directory: /home/luki/projects/MyC/build
+"core_test" start time: Sep 25 00:02 -03
+Output:
+----------------------------------------------------------
+token_count=240
+meta:
+	stream 0x56cf7911d0a0: size = 1176, cap = 2000
+	buffer: size = 1968, cap = 3392
+[ 'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)',  'example',  '1',  'of',  'tokenization',  ',',  'this',  'is',  'the',  'second',  'line',  'of',  'the',  'first',  'example',  'look',  'at',  'me',  'this',  'isn't',  '=)', ]
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"core_test" end time: Sep 25 00:02 -03
+"core_test" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 25 00:02 -03

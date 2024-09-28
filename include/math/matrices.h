@@ -51,7 +51,7 @@ void mc_normalize_vec(MC_FLOAT* vector, unsigned int size){
 
 void mc_mat_transpose(MC_FLOAT* input, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
-        for(unsigned int j = 0 ; j< sizex; j+=1){
+        for(unsigned int j = 0 ; j < sizex; j+=1){
             output[j * sizey + i] = input[i * sizex + j];
         }
     }
@@ -59,7 +59,7 @@ void mc_mat_transpose(MC_FLOAT* input, unsigned int sizex, unsigned int sizey, M
 
 void mc_mat_scale(MC_FLOAT scalar, MC_FLOAT* mat, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
-        for (unsigned int j = 0; i < sizex; j+=1){
+        for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = scalar * mat[i * sizex + j];
         }
     }
@@ -67,7 +67,7 @@ void mc_mat_scale(MC_FLOAT scalar, MC_FLOAT* mat, unsigned int sizex, unsigned i
 
 void mc_mat_sum(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
-        for (unsigned int j = 0; i < sizex; j+=1){
+        for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = mat1[i * sizex + j] + mat2[i * sizex + j];
         }
     }
@@ -75,7 +75,7 @@ void mc_mat_sum(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int
 
 void mc_mat_sub(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
-        for (unsigned int j = 0; i < sizex; j+=1){
+        for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = mat1[i * sizex + j] - mat2[i * sizex + j];
         }
     }
