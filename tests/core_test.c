@@ -21,32 +21,39 @@ int main(){
         );
     }
 
-    const char** string_buffer = (const char**)alloca(token_count * sizeof(char*));
+    const char* expected[] = {
+        "example", "1", "of", "tokenization", ",", "this", "is", "the",
+        "second", "line", "of", "the", "first", "example", "look", "at", "me",
+        "this", "isn't", "=)"
+    } ;
+
+    if(token_count % (sizeof(expected) / sizeof(const char*))){
+        fprintf( stderr,
+            "[ERROR] Expected To Read n * %zu Tokens, Read %u Instead\n",
+            (sizeof(expected) / sizeof(const char*)), token_count
+        );
+        mc_destroy_token_buffer(tokens);
+        return 1;
+    }
+
+    const char** string_buffer = (const char**)malloc(token_count * sizeof(char*));
     mc_buffer_token_data(string_buffer, tokens);
 
-
-    printf("token_count=%u\n", token_count);
-
-    Mc_tkn_metadata_t* meta = (Mc_tkn_metadata_t*)(tokens) - 1;
-    Mc_stream_t stream = meta->streamstring;
-    Mc_stream_t tknstrm = meta->tokn_strm_bff;
-
-    printf(
-        "meta:\n"
-        "\tstream %p: size = %zu, cap = %zu\n"
-        "\tbuffer: size = %zu, cap = %zu\n",
-        stream.data, stream.size, stream.capacity,
-        tknstrm.size, tknstrm.capacity
-    );
-
-    printf("[");
-
-    for(Mc_size_t i = 0; i < token_count; i += 1){
-        printf(" '%s', ", string_buffer[i]);
+    for(unsigned int i = 0; i < token_count; i += 1){
+        if(0 == mc_compare_str(string_buffer[i], expected[i % (sizeof(expected) / sizeof(const char*))], 0)){
+            fprintf( stderr,
+                "[ERROR] Token Number %u '%s' Differs From Expected '%s'\n",
+                i, string_buffer[i], expected[i % (sizeof(expected) / sizeof(const char*))]
+            );
+            mc_destroy_token_buffer(tokens);
+            free(string_buffer);
+            return 1;
+        }
     }
-    printf("]\n");
 
     mc_destroy_token_buffer(tokens);
+    free(string_buffer);
+    
 
 
     return 0;
