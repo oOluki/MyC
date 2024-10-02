@@ -36,7 +36,7 @@ static inline uint64_t mcsf_swap64(uint64_t x) {
 
 #if defined(_WIN32) || defined(_WIN64)  // Windows platform
     #include <windows.h>
-    #define MC_IS_LITTLE_ENDIAN (!IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE))  // Simple check
+    #define MC_IS_LITTLE_ENDIAN 1 // true 99% of the time
 
 #else  // Linux, macOS
 
