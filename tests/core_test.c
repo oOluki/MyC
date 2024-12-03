@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "../include/MyC.h"
+#include <stdio.h>
 
 int main(){
 

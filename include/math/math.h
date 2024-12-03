@@ -85,13 +85,14 @@ typedef size_t Mc_size_t;
 #define MC_ABS(X) (((X) > 0)? (X) : -(X))
 #endif
 
+#include <string.h>
 
 
 // função inverso da raiz quadrada original do Quake III, geralmente atribuida a John D. Carmack.
 // leia mais em: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
 // fast inverse sqrt function from Quake III, most noticibly attributed to John D. Carmack.
 // read more in: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
-float Q_rsqrt(float number)
+float mc_Q_rsqrt(float number)
 {
   long i;
   float x2, y;
@@ -108,7 +109,31 @@ float Q_rsqrt(float number)
   return y;
 }
 
-float mc_sqrt(float number){return 1.0f / Q_rsqrt(number);}
+// função inverso da raiz quadrada original do Quake III, geralmente atribuida a John D. Carmack.
+// leia mais em: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
+// fast inverse sqrt function from Quake III, most noticibly attributed to John D. Carmack.
+// read more in: https://en.wikipedia.org/wiki/Fast_inverse_square_root,
+double mc_Q_rsqrt_d(double number) {
+    const double x2 = number * 0.5;
+    const double threehalfs = 1.5;
+
+    union {
+        double d;
+        uint64_t i;
+    } conv = {number};
+
+    conv.i = 0x5fe6ec85e7de30da - (conv.i >> 1);
+
+    conv.d = conv.d * (threehalfs - (x2 * conv.d * conv.d));
+    conv.d = conv.d * (threehalfs - (x2 * conv.d * conv.d));
+    conv.d = conv.d * (threehalfs - (x2 * conv.d * conv.d));
+    conv.d = conv.d * (threehalfs - (x2 * conv.d * conv.d));
+    conv.d = conv.d * (threehalfs - (x2 * conv.d * conv.d));
+
+    return conv.d;
+}
+
+float mc_sqrt(float number){return 1.0f / mc_Q_rsqrt_d(number);}
 
 void mc_normalize_vec(MC_FLOAT* vector, unsigned int size){
     MC_FLOAT norm2 = 0;
@@ -117,7 +142,7 @@ void mc_normalize_vec(MC_FLOAT* vector, unsigned int size){
         norm2 += vector[i] * vector[i];
     }
 
-    const MC_FLOAT rnorm = Q_rsqrt(norm2);
+    const MC_FLOAT rnorm = mc_Q_rsqrt_d(norm2);
 
     for(unsigned int i = 0; i < size; i+=1){
         vector[i] *= rnorm;
@@ -126,7 +151,7 @@ void mc_normalize_vec(MC_FLOAT* vector, unsigned int size){
 }
 
 
-void mc_mat_transpose(MC_FLOAT* input, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
+void mc_mat_transpose(const MC_FLOAT* input, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
         for(unsigned int j = 0 ; j < sizex; j+=1){
             output[j * sizey + i] = input[i * sizex + j];
@@ -134,7 +159,7 @@ void mc_mat_transpose(MC_FLOAT* input, unsigned int sizex, unsigned int sizey, M
     }
 }
 
-void mc_mat_scale(MC_FLOAT scalar, MC_FLOAT* mat, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
+void mc_mat_scale(MC_FLOAT scalar, const MC_FLOAT* mat, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
         for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = scalar * mat[i * sizex + j];
@@ -142,7 +167,7 @@ void mc_mat_scale(MC_FLOAT scalar, MC_FLOAT* mat, unsigned int sizex, unsigned i
     }
 }
 
-void mc_mat_sum(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
+void mc_mat_sum(const MC_FLOAT* mat1, const MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
         for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = mat1[i * sizex + j] + mat2[i * sizex + j];
@@ -150,7 +175,7 @@ void mc_mat_sum(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int
     }
 }
 
-void mc_mat_sub(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
+void mc_mat_sub(const MC_FLOAT* mat1, const MC_FLOAT* mat2, unsigned int sizex, unsigned int sizey, MC_FLOAT* output){
     for(unsigned int i = 0; i < sizey; i+=1){
         for (unsigned int j = 0; j < sizex; j+=1){
             output[i * sizex + j] = mat1[i * sizex + j] - mat2[i * sizex + j];
@@ -158,8 +183,8 @@ void mc_mat_sub(MC_FLOAT* mat1, MC_FLOAT* mat2, unsigned int sizex, unsigned int
     }
 }
 
-void mc_mat_mul(MC_FLOAT* mat_1, unsigned int mat1_sizex, unsigned int mat1_sizey,
-MC_FLOAT* mat_2, unsigned int mat2_sizex, MC_FLOAT* output){
+void mc_mat_mul(const MC_FLOAT* mat_1, unsigned int mat1_sizex, unsigned int mat1_sizey,
+const MC_FLOAT* mat_2, unsigned int mat2_sizex, MC_FLOAT* output){
 
     const unsigned long ran = mat1_sizey * mat2_sizex;
 
@@ -198,9 +223,9 @@ void mc_solve_gauss(MC_FLOAT* a, MC_FLOAT* y, unsigned int size, MC_FLOAT* x){
 
                 const MC_FLOAT scale = a[n * size + m] / a[t * size + m];
                 // using x to temporarilly store a[t] * (a[n][m] / a[t][m]) {a[n] is a vector/matrice_line}
-                cym_mat_scale(scale, a + t * size, size, 1, x);
+                mc_mat_scale(scale, a + t * size, size, 1, x);
                 // a[n] -= a[t] * (a[n][m] / a[t][m])
-                cym_mat_sub(a + n * size, x, size, 1, a + n * size);
+                mc_mat_sub(a + n * size, x, size, 1, a + n * size);
                 // y[n] -= y[t] * (a[n][m] / a[t][m])
                 y[n] -= y[t] * scale;
 
@@ -262,7 +287,7 @@ int mc_make_unitary(const MC_FLOAT* input, unsigned int size, MC_FLOAT* output){
         return 1;
     }
 
-    rnorm = cym_Q_rsqrt_d(norm2);
+    rnorm = mc_Q_rsqrt_d(norm2);
 
     for(unsigned int i = 0; i < size; i+=1){
 
@@ -292,7 +317,7 @@ int mc_make_unitary(const MC_FLOAT* input, unsigned int size, MC_FLOAT* output){
 
             norm2 = output[j * (size + 1)] * output[j * (size + 1)] - dummy;
 
-            rnorm = cym_Q_rsqrt_d(norm2);
+            rnorm = mc_Q_rsqrt_d(norm2);
 
             for(unsigned int i = 0; i < j + 1; i+=1){
                 output[i * size + j] *= rnorm;
@@ -311,20 +336,20 @@ int mc_make_unitary(const MC_FLOAT* input, unsigned int size, MC_FLOAT* output){
 int mc_test_unitary(const MC_FLOAT* mat, unsigned int size, double accuracy){
     MC_FLOAT dag[size * size];
 
-    cym_mat_transpose(mat, size, size, dag);
+    mc_mat_transpose(mat, size, size, dag);
 
     MC_FLOAT I[size * size];
 
-    cym_mat_multiply(mat, size, size, dag, size, I);
+    mc_mat_mul(mat, size, size, dag, size, I);
 
     int is_un = 1;
 
     for(int i = 0; i < size && is_un; i++){
         for(int j = 0; j < size && is_un; j++){
             if(i == j){
-                is_un = CYM_ABS(I[i * size + j] - 1) < accuracy;
+                is_un = MC_ABS(I[i * size + j] - 1) < accuracy;
             } else{
-                is_un = CYM_ABS(I[i * size + j]) < accuracy;
+                is_un = MC_ABS(I[i * size + j]) < accuracy;
             }
         }
     }
@@ -332,14 +357,14 @@ int mc_test_unitary(const MC_FLOAT* mat, unsigned int size, double accuracy){
         return 0;
     }
 
-    cym_mat_multiply(dag, size, size, mat, size, I);
+    mc_mat_mul(dag, size, size, mat, size, I);
 
     for(int i = 0; i < size && is_un; i++){
         for(int j = 0; j < size && is_un; j++){
             if(i == j){
-                is_un = CYM_ABS(I[i * size + j] - 1) < accuracy;
+                is_un = MC_ABS(I[i * size + j] - 1) < accuracy;
             } else{
-                is_un = CYM_ABS(I[i * size + j]) < accuracy;
+                is_un = MC_ABS(I[i * size + j]) < accuracy;
             }
         }
     }
@@ -398,7 +423,7 @@ void mc_linear_fit(const MC_FLOAT* x, const MC_FLOAT* y, Mc_size_t number_of_poi
 
     *a = ar_numerador / a_denominador;
     *b = (sumy - (*a) * sumx) / number_of_points;
-    *r = ar_numerador * cym_Q_rsqrt_d((number_of_points * sumy2 - sumy * sumy) * a_denominador);
+    *r = ar_numerador * mc_Q_rsqrt_d((number_of_points * sumy2 - sumy * sumy) * a_denominador);
 }
 
 // performs a wheighted linear fit of the form y = A*x + B
@@ -424,7 +449,7 @@ int mc_rlinear_fit(const MC_FLOAT* x, const MC_FLOAT* y, const MC_FLOAT* dx, con
 
     MC_FLOAT av = a_numerador / a_denominador;
     MC_FLOAT bv = (sumy - av * sumx) / number_of_points;
-    *r           = a_numerador * cym_Q_rsqrt_d((number_of_points * sumy2 - sumy * sumy) * a_denominador);
+    *r           = a_numerador * mc_Q_rsqrt_d((number_of_points * sumy2 - sumy * sumy) * a_denominador);
 
     MC_FLOAT last_b = bv + 1;
     MC_FLOAT dav    = 0;
@@ -432,7 +457,7 @@ int mc_rlinear_fit(const MC_FLOAT* x, const MC_FLOAT* y, const MC_FLOAT* dx, con
 
     int iterations = 0;
 
-    while(CYM_ABS(bv - last_b) > dbv && iterations++ < 1000){
+    while(MC_ABS(bv - last_b) > dbv && iterations++ < 1000){
         last_b = bv;
 
         MC_FLOAT sumw   = 0;
@@ -457,8 +482,8 @@ int mc_rlinear_fit(const MC_FLOAT* x, const MC_FLOAT* y, const MC_FLOAT* dx, con
 
         av  = (sumw * sumwxy - sumwx * sumwy) / val;
         bv  = (sumwy - sumwx * av) / sumw;
-        dav = 1.0 / cym_Q_rsqrt_d(sumw / val);
-        dbv = 1.0 / cym_Q_rsqrt_d(sumwx2 / val);
+        dav = 1.0 / mc_Q_rsqrt_d(sumw / val);
+        dbv = 1.0 / mc_Q_rsqrt_d(sumwx2 / val);
     }
     
     if(iterations > 1000){

@@ -108,6 +108,7 @@ typedef size_t Mc_size_t;
 #endif // END OF SETUP =====================================================
 
 #include <stdlib.h>
+#include <string.h>
 
 /*--------------------------------------------------/
 /                                                   /
