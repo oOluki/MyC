@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/luki/projects/MyC/build",
-  "command": "/usr/bin/cc   -g -std=gnu99 -o CMakeFiles/core_test.dir/tests/core_test.c.o -c /home/luki/projects/MyC/tests/core_test.c",
-  "file": "/home/luki/projects/MyC/tests/core_test.c",
-  "output": "CMakeFiles/core_test.dir/tests/core_test.c.o"
-}
-]
