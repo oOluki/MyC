@@ -1,13 +1,202 @@
 #ifndef MC_MEMORY_HEADER
 #define MC_MEMORY_HEADER
 
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
+/*
+This is free and unencumbered software released into the public domain.
 
-#include "setup.h"
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <https://unlicense.org>
+*/
+
+#ifndef MC_SETUP_DONE   // setting up some MyC configurations ===============================
+#define MC_SETUP_DONE 1
 
 
+
+#ifdef _STDLIB_H // if the standard library is included:
+
+typedef size_t Mc_size_t;
+
+#endif
+
+
+#if defined(__arm__) || defined(__aarch64__) || defined(MC_INITMACRO_FORCE_ARM) // ARM architectures
+
+
+#define MC_ARCHITECTURE_ARM 1
+
+#endif
+
+
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || \
+    defined(__ppc64__) || defined(MC_INITMACRO_FORCE_64BIT) // 64 bit architectures
+
+
+    #include <stdint.h>
+
+    #define MC_ARCHITECTURE_64BIT 1
+
+    #ifndef _STDLIB_H // if the standard library is not included:
+
+        typedef uint64_t Mc_size_t;
+
+    #endif
+
+    typedef uint64_t Mc_uint_t;
+
+    typedef int64_t Mc_int_t;
+
+    #define MC_FLOAT double
+
+
+
+#elif defined(__i386__) || defined(_M_IX86) || defined(__arm__) || defined(MC_INITMACRO_FORCE_32BIT) // 32 bit architectures
+
+
+    #include <stdint.h>
+
+    #define MC_ARCHITECTURE_32BIT 1
+
+    #ifndef _STDLIB_H // if the standard library is not included:
+
+        typedef uint32_t Mc_size_t;
+
+    #endif
+
+    typedef uint32_t Mc_uint_t;
+
+    typedef int32_t Mc_int_t;
+
+#define MC_FLOAT float
+
+
+#else // [WARNING] Unknown Architecture, this architecture could be unsupported and, if it doesn't support <stdint.h>, for example, it will lead to undefined behavior
+
+    #ifndef _STDLIB_H
+
+        typedef unsigned int Mc_size_t;
+
+    #endif
+
+    typedef unsigned int Mc_uint_t;
+
+    typedef int Mc_int_t;
+
+
+#endif // END OF ARCHITECTURE DEFINITION
+
+#endif // END OF SETUP =====================================================
+
+
+
+/*--------------------------------------------------/
+/                                                   /
+/  Simple Convinent String Methods Implementations  /
+/                                                   /
+/--------------------------------------------------*/
+
+typedef struct Mc_string_t
+{
+    // not necessarily null terminated
+    char* c_str;
+    Mc_size_t size;
+} Mc_string_t;
+
+// if you only wish to compare the strings up to where the first one terminates, pass _only_compare_till_first_null=1
+// otherwise pass _only_compare_till_first_null=0
+static inline int mc_compare_str(const char* str1, const char* str2, int _only_compare_till_first_null){
+    if(_only_compare_till_first_null){
+        for(Mc_uint_t i = 0; str1[i] && str2[i]; i+=1){
+            if(str1[i] != str2[i]) return 0;
+        }
+        return 1;
+    }
+    
+    Mc_uint_t i = 0;
+    for( ; str1[i]; i+=1){
+        if(str1[i] != str2[i]) return 0;
+    }
+    return !str2[i];
+}
+
+// returns the first found character position relative to the offset, or -1 if none are found
+static inline Mc_int_t mc_find_char(const char* str, char c, Mc_int_t offset){
+    str += offset;
+    for(Mc_int_t i = 0; str[i]; i+=1){
+        if(c == str[i]) return i;
+    }
+    return -1;
+}
+
+// works similar to cym_find_char but does so to any of the characters in the charbuff str
+static inline Mc_int_t mc_find_chars(const char* str, const char* charbuff, Mc_int_t offset){
+    str += offset;
+    for(Mc_int_t i = 0; str[i]; i+=1){
+        for(Mc_int_t j = 0; charbuff[j]; j+=1){
+            if(charbuff[j] == str[i]) return i;
+        }
+    }
+    return -1;
+}
+
+
+static inline int mc_scompare_str(const Mc_string_t str1, const Mc_string_t str2){
+    if(str1.size != str2.size){
+        return 0;
+    }
+    for(Mc_size_t i = 0; i < str1.size; i+=1){
+        if(str1.c_str[i] != str2.c_str[i]){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// returns the first found character position relative to the offset, or -1 if none are found
+static inline Mc_int_t mc_sfind_char(Mc_string_t str, char c, Mc_int_t offset){
+    str.c_str += offset;
+    for(Mc_int_t i = 0; i < str.size; i+=1){
+        if(c == str.c_str[i]) return i;
+    }
+    return -1;
+}
+
+// works similar to cym_sfind_char but does so to any of the characters in the charbuff str
+static inline Mc_int_t mc_sfind_chars(Mc_string_t str, Mc_string_t charbuffstr, Mc_int_t offset){
+    str.c_str += offset;
+    for(Mc_int_t i = 0; i < str.size; i+=1){
+        for(Mc_int_t j = 0; j < charbuffstr.size; j+=1){
+            if(charbuffstr.c_str[j] == str.c_str[i]) return i;
+        }
+    }
+    return -1;
+}
+
+/*--------------------------------/
+/                                 /
+/  Memory Related Implementations /
+/                                 /
+/--------------------------------*/
 
 typedef unsigned char Mc_byte_t;
 
@@ -118,9 +307,181 @@ void mc_change_stream_cap(Mc_stream_t* stream, Mc_size_t new_cap){
     free(old_data);
 }
 
+/*-----------------------------------------------------------------/
+/                                                                  /
+/  This Is An Implementation Of A Tokenizer Or Lexer If You Prefer /
+/                                                                  /
+/-----------------------------------------------------------------*/
+
+// tokens are just numbers, use them to get the corresponding token data through mc_get_token_data
+typedef Mc_size_t Mc_token_t;
+
+typedef struct Mc_tkn_metadata_t{
+
+Mc_stream_t streamstring;
+Mc_stream_t tokn_strm_bff;
+
+} Mc_tkn_metadata_t;
+
+
+// returns the number of generated tokens and writes the tokens key to 'token_buffer_pointer'
+// the memory at the returned pointer has to be later freed via mc_destroy_tokens (do not use free)
+// \param token_buffer_pointer a pointer to the buffer where the token keys will be stored
+// \param buff_pos the position where to start buffering the tokens into the token_buffer
+// \param string the string of to be tokenized
+// \param __ignored the string of the characters to be ignored, pass null to ignore trivials '\ ' '\\n' '\\t'
+// \param __special_characters the characters that should be considered tokens on their own
+// \param __line_comment the string that represents a line comment
+// \returns the number of tokenized tokens
+unsigned int mc_tokenize(Mc_token_t** token_buffer_pointer, unsigned int buff_pos, const char* string,
+    const char* __ignored, const char* __special_characters, const char* __line_comment){
+
+        Mc_token_t* token_buffer = *token_buffer_pointer;
+        
+        Mc_tkn_metadata_t* meta = (Mc_tkn_metadata_t*)(token_buffer) - 1;
+        Mc_stream_t stream = meta->streamstring;
+        Mc_stream_t tokens = meta->tokn_strm_bff;
+
+        if(buff_pos * sizeof(Mc_token_t) + sizeof(Mc_tkn_metadata_t) < tokens.size){
+            stream.size = token_buffer[buff_pos];
+            tokens.size = buff_pos + sizeof(Mc_tkn_metadata_t);
+        }
+
+        const char* ignored = __ignored? __ignored : " \t\n";               // avoiding null dereferencing
+        const char* special_characters = __special_characters? __special_characters : "";
+        const char* line_comment = __line_comment? __line_comment : "";
+
+        //printf("configuration:\n");
+        //printf("\tignored = '%s'\n", ignored);
+        //printf("\tspecial characters = '%s'\n", special_characters);
+        //printf("\tline_comment = '%s'\n", line_comment);   
+
+        Mc_size_t last_token = 0;
+        Mc_size_t counter = 0;
+        int last_was_ignored = 0;
+        unsigned int tkn_count = 0;
+
+        for(; string[counter]; counter+=1){
+            const char c = string[counter];
+
+            if(c == line_comment[0]){
+                int skip = mc_compare_str(string + counter, line_comment, 1);
+                
+                if(skip){
+                    Mc_int_t to_ = mc_find_char(string, '\n', counter);
+
+                    if(to_ < 0) break;
+                    counter += to_;
+                    last_token = counter + 1;
+                    continue;
+                }
+            }
+
+            Mc_byte_t is_ignored = (mc_find_char(ignored, c, 0) >= 0)? 1 : 0;
+            if(is_ignored){
+                if(!last_was_ignored && (last_token < counter)){ // add last token only if it wasn't a special or ignored character
+                    Mc_token_t token = stream.size;                                     // be carefull, you cant simply point to the string in the stream,
+                    mc_stream(&stream, string + last_token, counter - last_token);      // as the stream is dynamically reallocating memory
+                    const char null_termc = '\0';                                       // instead the token will hold the index of the string in the stream
+                    mc_stream(&stream, &null_termc, sizeof(null_termc));  
+                    mc_stream(&tokens, &token, sizeof(token));
+                    tkn_count += 1;
+                }
+                last_token = counter + 1;
+                continue;
+            } else last_was_ignored = 0;
+
+            Mc_byte_t is_special = (mc_find_char(special_characters, c, 0) >= 0)? 1 : 0;
+
+            if(is_special){
+                if(last_token < counter){   // add last token only if it wasn't a special character
+                    Mc_token_t token = stream.size;    // be carefull, you cant simply point to the string in the stream,
+                    mc_stream(&stream, string + last_token, counter - last_token);      // as the stream is dynamically reallocating memory
+                    const char null_termc = '\0';                                       // instead the token will hold the index of the string in the stream
+                    mc_stream(&stream, &null_termc, sizeof(null_termc));  
+                    mc_stream(&tokens, &token, sizeof(token));
+                    tkn_count += 1;
+                }
+                Mc_token_t token = stream.size;
+                const char dummybuff[2] = {c, '\0'};
+                mc_stream(&stream, dummybuff, sizeof(dummybuff));
+                mc_stream(&tokens, &token, sizeof(token));
+                last_token = counter + 1;
+                tkn_count += 1;
+            }
+
+        }
+
+        if(last_token < counter){   // add last token only if appropriate
+            Mc_token_t token = stream.size;    // be carefull, you cant simply point to the string in the stream,
+            mc_stream(&stream, string + last_token, counter - last_token);      // as the stream is dynamically reallocating memory
+            const char null_termc = '\0';                                       // instead the pointer will hold the index of the string in the stream
+            mc_stream(&stream, &null_termc, sizeof(null_termc));  
+            mc_stream(&tokens, &token, sizeof(token));
+            tkn_count += 1;
+        }
+        
+
+        *token_buffer_pointer = (Mc_token_t*)((Mc_tkn_metadata_t*)tokens.data + 1);
+
+        meta = (Mc_tkn_metadata_t*)tokens.data;
+        *meta = (Mc_tkn_metadata_t){.streamstring = stream, .tokn_strm_bff = tokens};
+
+
+        return tkn_count;
+}
+
+
+
+// you can repeatedly use this bufffer on mc_tokenize only by the end
+// should this be freed by mc_destroy_token_buffer (don't use free)
+// \param tkn_icap the initial capacity (in token count) of the token buffer
+// \param tknstrm_icap the initial capacity (in bytes) of the stream that will allocate the tokens strings
+// \returns a buffer that can be used to hold the tokenized tokens by mc_tokenize
+Mc_token_t* mc_create_token_buffer(Mc_size_t tkn_icap, Mc_size_t tknstrm_icap){
+
+    Mc_tkn_metadata_t* mem_chunk = (Mc_tkn_metadata_t*)malloc(
+        tkn_icap * sizeof(Mc_token_t) + sizeof(Mc_tkn_metadata_t)
+    );
+
+    mem_chunk->tokn_strm_bff.data = (Mc_byte_t*)(mem_chunk);
+    mem_chunk->tokn_strm_bff.size = sizeof(Mc_tkn_metadata_t);
+    mem_chunk->tokn_strm_bff.capacity = tkn_icap * sizeof(Mc_token_t) + sizeof(Mc_tkn_metadata_t);
+
+    mem_chunk->streamstring.data = (Mc_byte_t*)malloc(tknstrm_icap);
+    mem_chunk->streamstring.size = 0;
+    mem_chunk->streamstring.capacity = tknstrm_icap;
+
+    return (Mc_token_t*)(mem_chunk + 1);
+}
+
+// frees all the memory related to the tokenization process of tokens
+// (their strings and the memory chunk containing them and the tokens)
+// \param the pointer to the tokens to destroy
+void mc_destroy_token_buffer(Mc_token_t* tokens){
+    Mc_tkn_metadata_t* mem_chunk = (Mc_tkn_metadata_t*)tokens - 1;
+    free(mem_chunk->streamstring.data);
+    free(mem_chunk);
+}
+
+
+// returns the string related to the token in the token_buffer
+static inline char* mc_get_token_data(const Mc_token_t* token_buffer, Mc_token_t token){
+    return ((const Mc_tkn_metadata_t*)token_buffer - 1)->streamstring.data + token;
+}
+
+// buffers the strings related to all the tokens in the token_buffer to the corresponding string in buffer
+// this is simply the meta_data.str_begin + token
+void mc_buffer_token_data(const char** buffer, const Mc_token_t* token_buffer){
+    const Mc_tkn_metadata_t* meta_data = (Mc_tkn_metadata_t*)token_buffer - 1;
+    const Mc_size_t token_count = (meta_data->tokn_strm_bff.size - sizeof(Mc_tkn_metadata_t)) / sizeof(Mc_token_t);
+    for(Mc_size_t i = 0; i < token_count; i+=1){
+        buffer[i] = meta_data->streamstring.data + token_buffer[i];        
+    }
+}
 
 
 
 
+#endif // END OF FILE
 
-#endif // END OF FILE ===============================================================
