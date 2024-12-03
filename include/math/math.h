@@ -85,6 +85,7 @@ typedef size_t Mc_size_t;
 #define MC_ABS(X) (((X) > 0)? (X) : -(X))
 #endif
 
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -209,7 +210,7 @@ void mc_solve_gauss(MC_FLOAT* a, MC_FLOAT* y, unsigned int size, MC_FLOAT* x){
     #ifdef alloca
     Mc_size_t* index = (Mc_size_t*)alloca(2 * size * sizeof(Mc_size_t));
     #else
-    Mc_size_t* index = (Mc_size_t)malloc(2 * size * sizeof(Mc_size_t));
+    Mc_size_t* index = (Mc_size_t*)malloc(2 * size * sizeof(Mc_size_t));
     #endif
 
     // a variable to store the pivot line
@@ -334,11 +335,11 @@ int mc_make_unitary(const MC_FLOAT* input, unsigned int size, MC_FLOAT* output){
 }
 
 int mc_test_unitary(const MC_FLOAT* mat, unsigned int size, double accuracy){
-    MC_FLOAT dag[size * size];
+    MC_FLOAT* dag = (MC_FLOAT*)malloc(2 * (size * size) * sizeof(MC_FLOAT));
 
     mc_mat_transpose(mat, size, size, dag);
 
-    MC_FLOAT I[size * size];
+    MC_FLOAT* I = dag + size * size * sizeof(MC_FLOAT);
 
     mc_mat_mul(mat, size, size, dag, size, I);
 
@@ -354,6 +355,7 @@ int mc_test_unitary(const MC_FLOAT* mat, unsigned int size, double accuracy){
         }
     }
     if(!is_un){
+        free(dag);
         return 0;
     }
 
@@ -368,6 +370,8 @@ int mc_test_unitary(const MC_FLOAT* mat, unsigned int size, double accuracy){
             }
         }
     }
+
+    free(dag);
 
     return is_un;
 
